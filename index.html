@@ -95,12 +95,34 @@
     const resultDiv = document.getElementById('result');
     const loadingDiv = document.getElementById('loading');
 
-    // تحويل الصورة إلى Base64
-    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    // دالة لضغط الصور وتصغير حجمها قبل الإرسال
+    const compressImage = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const maxWidth = 800; // تصغير العرض إلى 800 بكسل كأقصى حد
+                const scaleSize = maxWidth / img.width;
+                
+                if (scaleSize < 1) {
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scaleSize;
+                } else {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // ضغط الجودة إلى 70% لتوفير الحجم
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
     });
 
     form.addEventListener('submit', async (e) => {
@@ -117,7 +139,7 @@
 
         try {
             const files = Array.from(fileInput.files).slice(0, 3);
-            const base64Images = await Promise.all(files.map(fileToBase64));
+            const base64Images = await Promise.all(files.map(compressImage));
 
             const response = await fetch('/api/analyze', {
                 method: 'POST',
@@ -128,15 +150,15 @@
             const data = await response.json();
             loadingDiv.style.display = 'none';
 
-            if (data.analysis) {
+            if (response.ok && data.analysis) {
                 resultDiv.innerText = data.analysis;
                 resultDiv.style.display = 'block';
             } else {
-                alert(data.error || "حدث خطأ أثناء التحليل");
+                alert(data.error || "حدث خطأ غير متوقع في السيرفر.");
             }
         } catch (err) {
             loadingDiv.style.display = 'none';
-            alert("حدث خطأ أثناء الاتصال. أعد المحاولة بعد قليل.");
+            alert("فشل الاتصال بالسيرفر. تأكد من عمل Redeploy للمشروع في Vercel.");
         }
     });
 </script>
