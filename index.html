@@ -27,7 +27,8 @@
             text-align: center;
             border: 1px solid #2a223d;
         }
-        h1 { color: #e91e63; margin-bottom: 10px; }
+        h1 { color: #e91e63; margin-bottom: 5px; }
+        h2 { font-size: 20px; margin-bottom: 15px; }
         p { color: #a09cb1; font-size: 14px; margin-bottom: 25px; }
         .file-input-wrapper {
             margin-bottom: 20px;
@@ -56,7 +57,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        button:hover { opacity: 0.9; transform: scale(0.99); }
+        button:hover { opacity: 0.9; }
         #result {
             margin-top: 25px;
             padding: 15px;
@@ -67,7 +68,7 @@
             line-height: 1.6;
             display: none;
         }
-        .loading { display: none; color: #e91e63; margin-top: 15px; }
+        .loading { display: none; color: #e91e63; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -75,7 +76,7 @@
 <div class="container">
     <h1>SoulPulse.AI ♥</h1>
     <h2>حلل شفرة الشخصية التي تحبها</h2>
-    <p>قم برفع سكرين شوت لصفحة الحساب أو المنشورات ودع الذكاء الاصطناعي يحلل الشخصية بلمحة عين!</p>
+    <p>ارفاق سكرين شوت لصفحة الحساب أو المنشورات ودع الذكاء الاصطناعي يقرأ الشخصية!</p>
 
     <form id="analyzeForm">
         <div class="file-input-wrapper">
@@ -85,7 +86,7 @@
         <button type="submit" id="submitBtn">تحليل الصور ✨</button>
     </form>
 
-    <div class="loading" id="loading">جاري قراءة الصور وتحليل الشخصية بوساطة الذكاء الاصطناعي... ⏳</div>
+    <div class="loading" id="loading">جاري قراءة الصور وتحليل الشخصية... ⏳</div>
     <div id="result"></div>
 </div>
 
@@ -93,6 +94,14 @@
     const form = document.getElementById('analyzeForm');
     const resultDiv = document.getElementById('result');
     const loadingDiv = document.getElementById('loading');
+
+    // تحويل الصورة إلى Base64
+    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -103,18 +112,17 @@
             return;
         }
 
-        const formData = new FormData();
-        for (let i = 0; i < Math.min(fileInput.files.length, 3); i++) {
-            formData.append('screenshots', fileInput.files[i]);
-        }
-
         loadingDiv.style.display = 'block';
         resultDiv.style.display = 'none';
 
         try {
+            const files = Array.from(fileInput.files).slice(0, 3);
+            const base64Images = await Promise.all(files.map(fileToBase64));
+
             const response = await fetch('/api/analyze', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ images: base64Images })
             });
 
             const data = await response.json();
@@ -128,7 +136,7 @@
             }
         } catch (err) {
             loadingDiv.style.display = 'none';
-            alert("تعذر الاتصال بالسيرفر. تأكد من رفع الملفات وتحديث Vercel.");
+            alert("حدث خطأ أثناء الاتصال. أعد المحاولة بعد قليل.");
         }
     });
 </script>
