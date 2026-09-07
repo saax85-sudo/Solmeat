@@ -3,313 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoulPulse.AI - تحليل الحسابات بالذكاء الاصطناعي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>SoulPulse.AI - تحليل شفرة الشخصية</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
-
         body {
-            background-color: #0b0b12;
+            background-color: #0d0a14;
             color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            margin: 0;
             padding: 20px;
-            overflow-x: hidden;
-            position: relative;
+            box-sizing: border-box;
         }
-
-        /* الخلفية المضيئة المبتكرة */
-        .glow-bg {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, rgba(147, 51, 234, 0.15) 50%, rgba(0,0,0,0) 70%);
-            filter: blur(60px);
-            z-index: 0;
-            pointer-events: none;
-        }
-
         .container {
-            width: 100%;
-            max-width: 600px;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .logo-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .main-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-
-        .main-title span {
-            color: #ec4899;
-        }
-
-        .subtitle {
-            color: #9ca3af;
-            font-size: 1.05rem;
-            margin-bottom: 35px;
-        }
-
-        .input-card {
-            background: rgba(22, 22, 35, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        @media (min-width: 640px) {
-            .input-group {
-                flex-direction: row;
-            }
-        }
-
-        input[type="text"] {
-            flex: 1;
-            background: rgba(10, 10, 18, 0.8);
-            border: 1px solid #374151;
-            border-radius: 12px;
-            padding: 15px 20px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-            direction: ltr;
-            text-align: left;
-        }
-
-        input[type="text"]:focus {
-            border-color: #ec4899;
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
-        }
-
-        button.btn-submit {
-            background: linear-gradient(135deg, #ec4899, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 30px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            white-space: nowrap;
-        }
-
-        button.btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
-        }
-
-        /* شاشة الانتظار */
-        .loading-box {
-            display: none;
-            margin-top: 25px;
-        }
-
-        .spinner {
-            width: 45px;
-            height: 45px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #ec4899;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* كارت النتائج */
-        .result-card {
-            display: none;
-            background: rgba(22, 22, 35, 0.85);
-            border: 1px solid rgba(236, 72, 153, 0.3);
-            border-radius: 20px;
+            background: #181325;
             padding: 30px;
-            text-align: right;
-            margin-top: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-        }
-
-        .result-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #ec4899;
-            margin-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-        }
-
-        .result-content {
-            font-size: 1.05rem;
-            line-height: 1.8;
-            color: #e5e7eb;
-            white-space: pre-wrap;
-        }
-
-        /* Modal للتنبيهات */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: #161623;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 25px;
-            border-radius: 16px;
-            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 500px;
             width: 100%;
             text-align: center;
+            border: 1px solid #2a223d;
         }
-
-        .modal-btn {
-            background: #ec4899;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            margin-top: 15px;
+        h1 { color: #e91e63; margin-bottom: 10px; }
+        p { color: #a09cb1; font-size: 14px; margin-bottom: 25px; }
+        .file-input-wrapper {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        label { display: block; margin-bottom: 8px; color: #d1c4e9; font-size: 14px; }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: #251e36;
+            border: 1px dashed #e91e63;
+            border-radius: 10px;
+            color: #fff;
+            box-sizing: border-box;
             cursor: pointer;
-            font-weight: 600;
         }
-
-        footer {
-            margin-top: 40px;
-            color: #6b7280;
-            font-size: 0.85rem;
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #e91e63, #9c27b0);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
+        button:hover { opacity: 0.9; transform: scale(0.99); }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #251e36;
+            border-radius: 10px;
+            text-align: right;
+            white-space: pre-line;
+            line-height: 1.6;
+            display: none;
+        }
+        .loading { display: none; color: #e91e63; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="glow-bg"></div>
+<div class="container">
+    <h1>SoulPulse.AI ♥</h1>
+    <h2>حلل شفرة الشخصية التي تحبها</h2>
+    <p>قم برفع سكرين شوت لصفحة الحساب أو المنشورات ودع الذكاء الاصطناعي يحلل الشخصية بلمحة عين!</p>
 
-    <div class="container">
-        <div class="logo-title">SoulPulse.AI 💖</div>
+    <form id="analyzeForm">
+        <div class="file-input-wrapper">
+            <label for="screenshots">اختر صور سكرين شوت (حتى 3 صور):</label>
+            <input type="file" id="screenshots" accept="image/*" multiple required>
+        </div>
+        <button type="submit" id="submitBtn">تحليل الصور ✨</button>
+    </form>
+
+    <div class="loading" id="loading">جاري قراءة الصور وتحليل الشخصية بوساطة الذكاء الاصطناعي... ⏳</div>
+    <div id="result"></div>
+</div>
+
+<script>
+    const form = document.getElementById('analyzeForm');
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById('screenshots');
         
-        <h1 class="main-title">حلل شفرة الشخص الذي <span>تحبه</span></h1>
-        <p class="subtitle">رابط الحساب ودع الذكاء الاصطناعي يحلل اهتماماته وأسرار كسب قلبه.</p>
+        if (fileInput.files.length === 0) {
+            alert("يرجى اختيار صورة واحدة على الأقل");
+            return;
+        }
 
-        <div class="input-card">
-            <div class="input-group">
-                <input type="text" id="profileUrl" placeholder="https://instagram.com/username" />
-                <button class="btn-submit" onclick="startAnalysis()">تحليل الحساب ✨</button>
-            </div>
+        const formData = new FormData();
+        for (let i = 0; i < Math.min(fileInput.files.length, 3); i++) {
+            formData.append('screenshots', fileInput.files[i]);
+        }
 
-            <div class="loading-box" id="loadingBox">
-                <div class="spinner"></div>
-                <p style="color: #9ca3af; font-size: 0.95rem;">جاري الاتصال بالذكاء الاصطناعي وتحليل الصور...</p>
-            </div>
-        </div>
+        loadingDiv.style.display = 'block';
+        resultDiv.style.display = 'none';
 
-        <div class="result-card" id="resultCard">
-            <div class="result-title">📋 تقرير التحليل والنصائح:</div>
-            <div class="result-content" id="resultText"></div>
-        </div>
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                body: formData
+            });
 
-        <footer>جميع الحقوق محفوظة © 2026</footer>
-    </div>
+            const data = await response.json();
+            loadingDiv.style.display = 'none';
 
-    <!-- Modal للأخطاء -->
-    <div class="modal" id="errorModal">
-        <div class="modal-content">
-            <p id="errorText" style="color: #fff;"></p>
-            <button class="modal-btn" onclick="closeModal()">إغلاق</button>
-        </div>
-    </div>
-
-    <script>
-        async function startAnalysis() {
-            const urlInput = document.getElementById('profileUrl').value.trim();
-            const loadingBox = document.getElementById('loadingBox');
-            const resultCard = document.getElementById('resultCard');
-            const resultText = document.getElementById('resultText');
-
-            if (!urlInput) {
-                showModal('يرجى إدخال رابط حساب الإنستغرام أولاً!');
-                return;
+            if (data.analysis) {
+                resultDiv.innerText = data.analysis;
+                resultDiv.style.display = 'block';
+            } else {
+                alert(data.error || "حدث خطأ أثناء التحليل");
             }
-
-            // إظهار التحميل وإخفاء النتائج السابقة
-            loadingBox.style.display = 'block';
-            resultCard.style.display = 'none';
-
-            try {
-                // التعديل الجوهري: استخدام المسار النسبي /api/analyze ليتوافق مع Vercel
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ profileUrl: urlInput })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'تعذر الاتصال بالسيرفر.');
-                }
-
-                // عرض النتيجة
-                resultText.textContent = data.analysis;
-                resultCard.style.display = 'block';
-
-            } catch (err) {
-                showModal(err.message || 'تعذر الاتصال بالسيرفر. تأكد من تشغيل الـ Backend.');
-            } finally {
-                loadingBox.style.display = 'none';
-            }
+        } catch (err) {
+            loadingDiv.style.display = 'none';
+            alert("تعذر الاتصال بالسيرفر. تأكد من رفع الملفات وتحديث Vercel.");
         }
+    });
+</script>
 
-        function showModal(msg) {
-            document.getElementById('errorText').textContent = msg;
-            document.getElementById('errorModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('errorModal').style.display = 'none';
-        }
-    </script>
 </body>
 </html>
